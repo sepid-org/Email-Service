@@ -50,7 +50,7 @@ async def send_email(email: EmailSchema):
             await aiosmtplib.send(
                 message,
                 hostname="smtp.gmail.com",
-                port=587,
+                port=465,
                 start_tls=True,
                 username="sepid.platform@gmail.com",
                 password=os.getenv('GMAIL_KEY' ,"xxxxxxxx")
