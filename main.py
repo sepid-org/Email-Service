@@ -1,3 +1,4 @@
+from typing import List, Literal
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 import aiosmtplib
@@ -11,9 +12,10 @@ app = FastAPI()
 
 
 class EmailSchema(BaseModel):
-    email: list[str]
+    email: List[str]
     subject: str
     body: dict
+    template: Literal['greeting', 'news', 'verification']
 
 
 def read_html_template(file_path: str) -> str:
@@ -23,14 +25,14 @@ def read_html_template(file_path: str) -> str:
 
 
 async def send_email(email: EmailSchema):
-    if email.body['type'] == 1:
+    if email.template == 'greeting':
         template = read_html_template('templates/greeting.html')
         html_content = template.replace('{{ name }}', email.body['name'])
-    elif email.body['type'] == 2:
+    elif email.template == 'news':
         template = read_html_template('templates/news.html')
         html_content = template.replace('{{ news }}', email.body['news'])
-    elif email.body['type'] == 3:
-        template = read_html_template('templates/verify.html')
+    elif email.template == 'verification':
+        template = read_html_template('templates/verification.html')
         html_content = template.replace('{{ code }}', email.body['code'])
     else:
         raise HTTPException(status_code=400, detail="Invalid email body type")
