@@ -41,18 +41,21 @@ async def send_email(email: EmailSchema):
     message.add_alternative(html_content, subtype='html')
 
     try:
-        for i in email.email:
-            message["To"] = i
+        for recipient in email.email:
+            message["To"] = recipient
             await aiosmtplib.send(
                 message,
                 hostname="smtp.gmail.com",
                 port=465,
-                start_tls=True,
+                use_tls=True,
                 username="sepid.platform@gmail.com",
                 password=os.getenv('GMAIL_KEY', "xxxxxxxx")
             )
+    except aiosmtplib.SMTPException as smtp_error:
+        raise HTTPException(
+            status_code=500, detail=f"SMTP error: {smtp_error}")
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=f"General error: {e}")
 
 
 @app.post("/send-email/")
